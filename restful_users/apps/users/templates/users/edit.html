@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Create New User</title>
+  </head>
+  <body>
+    <h1>Edit A User # {{id}}</h1>
+    <form action="/users/{{id}}/update" method="post">
+      {% csrf_token %}
+      First Name: <input type="text" name="first_name" value="first_name">
+      Last Name: <input type="text" name="last_name" value="last_name">
+      Email: <input type="text" name="email" value="email">
+      <input type="submit" name="Update" value="submit">
+    </form>
+    <a href="/users/index">Go Back</a>
+    <a href="/users/{{id}}">Show</a>
+
+  </body>
+</html>

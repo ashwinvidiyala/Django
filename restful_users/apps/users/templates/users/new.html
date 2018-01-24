@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Create New User</title>
+  </head>
+  <body>
+    <h1>Add A New User</h1>
+    <form action="/users/create" method="post">
+      {% csrf_token %}
+      First Name: <input type="text" name="first_name" value="first_name">
+      Last Name: <input type="text" name="last_name" value="last_name">
+      Email: <input type="text" name="email" value="email">
+      <input type="submit" name="Create" value="submit">
+    </form>
+    <a href="/users/index">Go Back</a>
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </body>
+</html>
