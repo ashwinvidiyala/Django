@@ -7,12 +7,21 @@
   <body>
     <div> <!-- Header -->
       <h3>Test App</h3>
-      <a href="#">Home</a>
-      <a href="/login">Login</a>
+      <a href="/index">Home</a>
+      {% if request.session.login_status == 1 %}
+        <a href="/logout">Logout</a>
+      {% else %}
+        <a href="/login">Login</a>
+      {% endif%}
     </div>
 
     <div>
-      <h2>Register</h2>
+      {% if request.session.user_level == 1 %}
+        <h2>Add A New User</h2>
+        <a href="/dashboard">Return To Dashboard</a>
+      {% else %}
+        <h2>Register</h2>
+      {% endif %}
       <form action="/users/register" method="post">
         {% csrf_token%}
         Email Address:
@@ -25,9 +34,15 @@
         <br><input type="password" name="password" required><br><br>
         Password Confirmation:
         <br><input type="password" name="password_confirmation" required><br><br>
-        <input type="submit" name="submit" value="Register"><br><br>
+        {% if request.session.user_level == 1 %}
+          <input type="submit" name="submit" value="Create"><br><br>
+        {% else %}
+          <input type="submit" name="submit" value="Register"><br><br>
+        {% endif %}
       </form>
-      <a href="/login">Already have an account? Login</a>
+        {% if request.session.user_level == 2 %}
+        <a href="/login">Already have an account? Login</a>
+        {% endif %}
     </div>
 
     <div> <!-- Shows validation errors -->

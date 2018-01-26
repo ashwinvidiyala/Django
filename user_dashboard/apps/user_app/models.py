@@ -33,6 +33,15 @@ class BlogManager(models.Manager):
 
         return errors
 
+    def password_validator(self, postData):
+        errors = {}
+        if len(postData['password']) < 8:
+            errors['password'] = 'Password needs to be at least 8 characters long.'
+        if postData['password'] != postData['password_confirmation']:
+            errors['password_confirmation'] = 'Passwords have to match.'
+
+        return errors
+
 class User(models.Model):
     first_name = models.CharField(max_length = 255)
     last_name = models.CharField(max_length = 255)

@@ -5,14 +5,20 @@
     <title>Homepage</title>
   </head>
   <body>
-    <h1>Test App</h1>
-    <a href="#">Home</a>
-    <a href="/login">Login</a>
+    <div> <!-- Header -->
+      <h3>Test App</h3>
+      <a href="/index">Home</a>
+      {% if request.session.login_status == 1 %}
+        <a href="/logout">Logout</a>
+      {% else %}
+        <a href="/login">Login</a>
+      {% endif%}
+    </div>
 
     <h2>Welcome To The Test</h2>
     <p>We're going to build a cool application using an MVC framework!
        This application was built with the Village88 folks!</p>
-    <form action="#" method="post">
+    <form action="/register" method="post">
       {% csrf_token %}
       <input type="submit" name="submit" value="Start">
     </form>

@@ -12,8 +12,11 @@ def login_page(request):
 def register_page(request):
     return render(request, 'user_app/register.html')
 
-# def dashboard(request):
-#     return render(request, 'user_app/dashboard.html')
+def dashboard(request):
+    # context = {
+    #     'user_data': User.objects.all(),
+    # }
+    return render(request, 'user_app/dashboard.html', { 'user_data': User.objects.all() })
 
 def users_new(request):
     return render(request, 'user_app/users_new.html')
@@ -34,7 +37,7 @@ def users_homepage(request, id):
     return render(request, 'user_app/users_homepage.html', context)
 
 def register(request):
-    if request.POST['submit'] == 'Register':
+    if request.POST['submit'] == 'Register' or request.POST['submit'] == 'Create':
         errors = User.objects.basic_validator(request.POST)
         if len(errors):
             for tag, error in errors.iteritems():
@@ -43,7 +46,21 @@ def register(request):
 
         password = bcrypt.hashpw(request.POST['password'].encode(), bcrypt.gensalt())
         user = User.objects.create(first_name = request.POST['first_name'], last_name = request.POST['last_name'], email = request.POST['email'], password = password)
-        return redirect('/users/show/'+str(user.id))
+        if 'login_status' not in request.session:
+            request.session['login_status'] = 1
+        else:
+            request.session['login_status'] = 1
+
+        if 'user_level' not in request.session: #User does not exist
+            request.session['id'] = user.id
+            request.session['user_level'] = user.user_level
+            return redirect('/users/show/'+str(request.session['id']))
+        elif request.session['user_level'] == 2:
+            request.session['id'] = user.id #User is not admin
+            request.session['user_level'] = user.user_level
+            return redirect('/users/show/'+str(request.session['id']))
+        elif request.session['user_level'] == 1:
+            return redirect('/users/show/'+str(user.id))
 
 def login(request):
     if request.POST['submit'] == 'Login':
@@ -64,10 +81,56 @@ def login(request):
                     request.session['login_status'] = 1
                 else:
                     request.session['login_status'] = 1
-                return redirect('/users/show/'+str(user.id))
+                request.session['id'] = user.id
+                request.session['user_level'] = user.user_level
+                return redirect('/users/show/'+str(request.session['id']))
             else:
                 messages.add_message(request, messages.INFO, 'Password is incorrect')
                 return redirect('/login')
 
 def logout(request):
     request.session['login_status'] = 0
+    del request.session['id']
+    del request.session['user_level']
+    return redirect ('/login')
+
+def edit(request, id): #goes to the edit page
+    # user = User.objects.filter(id = id)
+    # for user in user:
+    context = {
+        'user_data': User.objects.filter(id = id)
+    }
+    return render(request, 'user_app/edit.html', context)
+
+def edit_users(request):
+    user = User.objects.get(id = request.POST['id'])
+    if request.POST['submit'] == 'Save':
+        user.email = request.POST['email']
+        user.first_name = request.POST['first_name']
+        user.last_name = request.POST['last_name']
+        user.user_level = request.POST['user_level']
+        user.save()
+        return redirect('/dashboard')
+
+
+    if request.POST['submit'] == 'Update Password':
+        errors = User.objects.password_validator(request.POST)
+        if len(errors):
+            for tag, error in errors.iteritems():
+                messages.error(request, error, extra_tags = tag)
+            return redirect('/users/edit/'+str(user.id))
+
+        password = bcrypt.hashpw(request.POST['password'].encode(), bcrypt.gensalt())
+        user.password = password
+        user.save()
+        return redirect('/dashboard')
+
+    if request.POST['submit'] == 'Edit Description':
+        user.description = request.POST['description']
+        user.save()
+        return redirect('/dashboard')
+
+def delete(request, id):
+    User.objects.get(id=id).delete()
+
+    return redirect('/dashboard')

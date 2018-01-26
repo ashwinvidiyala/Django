@@ -7,9 +7,15 @@
   <body>
     <div> <!-- Header -->
       <h3>Test App</h3>
-      <a href="#">Dashboard</a>
-      <a href="#">Profile</a>
-      <a href="/login">Login</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/users/show/{{request.session.id}}">Profile</a>
+      <!-- <a href="#">Edit Profile</a> -->
+      <a href="/users/edit/{{request.session.id}}">Edit Profile</a>
+      {% if request.session.login_status == 1 %}
+        <a href="/logout">Logout</a>
+      {% else %}
+        <a href="/login">Login</a>
+      {% endif%}
     </div>
 
     <div>
